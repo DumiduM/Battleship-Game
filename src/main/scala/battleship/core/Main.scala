@@ -15,9 +15,7 @@ object Main extends App {
   }
   GameDisplay.clear()
   GameDisplay.introduction()
-  GameDisplay.choiceOfPlayers()
-  val gameType = PlayerInputs.choiceOfPlayers()
-  val randoms = if (gameType < 5) Seq[Random](new Random(), new Random()) else Seq[Random](new Random(), new Random(), new Random(), new Random(), new Random(), new Random())
+  val randoms = Seq[Random](new Random(), new Random())
 
   /**
     *
@@ -27,55 +25,14 @@ object Main extends App {
     * @param shipConfig
     * @return
     */
-  def initGameStates(gameType: Int, numberOfGames: Int, randoms: Seq[Random], gameConfig: GameConfig): Set[GameState] = {
-    gameType match {
-      case 1 => {
-        GameDisplay.clear()
-        GameDisplay.choseYourName(1)
-        val namePlayerOne: String = PlayerInputs.choseName()
-        val playerOne: HumanPlayer = HumanPlayer.createPlayer(namePlayerOne, randoms(0), gameConfig.shipsConfig, gameConfig.gridSize)
-        GameDisplay.clear()
-        GameDisplay.choseYourName(2)
-        val namePlayerTwo: String = PlayerInputs.choseName()
-        val playerTwo: HumanPlayer = HumanPlayer.createPlayer(namePlayerTwo, randoms(0), gameConfig.shipsConfig, gameConfig.gridSize)
-        Set(GameState(playerOne, playerTwo, numberOfGames, 1))
-      }
-      case 2 => {
-        GameDisplay.clear()
+  def initGameStates(numberOfGames: Int, randoms: Seq[Random], gameConfig: GameConfig): Set[GameState] = {
         GameDisplay.choseYourName(1)
         val namePlayer: String = PlayerInputs.choseName()
         val player: HumanPlayer = HumanPlayer.createPlayer(namePlayer, randoms(0), gameConfig.shipsConfig, gameConfig.gridSize)
         val ia: WeakIAPlayer = WeakIAPlayer.generateIA(1, randoms(1), gameConfig.shipsConfig, gameConfig.gridSize)
         Set(GameState(player, ia, numberOfGames, 1))
-      }
-      case 3 => {
-        GameDisplay.clear()
-        GameDisplay.choseYourName(1)
-        val namePlayer: String = PlayerInputs.choseName()
-        val player: HumanPlayer = HumanPlayer.createPlayer(namePlayer, randoms(0), gameConfig.shipsConfig, gameConfig.gridSize)
-        val ia: NormalIAPlayer = NormalIAPlayer.generateIA(1, randoms(1), gameConfig.shipsConfig, gameConfig.gridSize)
-        Set(GameState(player, ia, numberOfGames, 1))
-      }
-      case 4 => {
-        GameDisplay.clear()
-        GameDisplay.choseYourName(1)
-        val namePlayer: String = PlayerInputs.choseName()
-        val player: HumanPlayer = HumanPlayer.createPlayer(namePlayer, randoms(0), gameConfig.shipsConfig, gameConfig.gridSize)
-        val ia: StrongAIPlayer = StrongAIPlayer.generateIA(1, randoms(1), gameConfig.shipsConfig, gameConfig.gridSize)
-        Set(GameState(player, ia, numberOfGames, 1))
-      }
-      case _ => {
-        val ia1: WeakIAPlayer = WeakIAPlayer.generateIA(1, randoms(0), gameConfig.shipsConfig, gameConfig.gridSize)
-        val ia2: NormalIAPlayer = NormalIAPlayer.generateIA(1, randoms(1), gameConfig.shipsConfig, gameConfig.gridSize)
-        val ia3: NormalIAPlayer = NormalIAPlayer.generateIA(2, randoms(2), gameConfig.shipsConfig, gameConfig.gridSize)
-        val ia4: StrongAIPlayer = StrongAIPlayer.generateIA(1, randoms(3), gameConfig.shipsConfig, gameConfig.gridSize)
-        val ia5: WeakIAPlayer = WeakIAPlayer.generateIA(2, randoms(4), gameConfig.shipsConfig, gameConfig.gridSize)
-        val ia6: StrongAIPlayer = StrongAIPlayer.generateIA(2, randoms(5), gameConfig.shipsConfig, gameConfig.gridSize)
-        Set(GameState(ia1, ia2, numberOfGames, 1), GameState(ia3, ia4, numberOfGames, 1), GameState(ia5, ia6, numberOfGames, 1))
-      }
-    }
   }
-
+  
   /**
     *
     * @param gameState
@@ -131,15 +88,11 @@ object Main extends App {
     }
   }
 
-  val gameStates = initGameStates(gameType, 100, randoms, gameConfig)
+  val gameStates = initGameStates(100, randoms, gameConfig)
   val results = gameStates.map(gameState => {
     GameDisplay.gameNumber(gameState.gameCount, gameState.numberOfGames)
     mainLoop(gameState, gameConfig)
   })
 
-  /**
-    * Write the results on the filesystem. In a file called results.csv.
-    */
   GameDisplay.end(results)
-  GameOutput.writeResults(results)
 }
